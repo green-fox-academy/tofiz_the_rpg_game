@@ -1,5 +1,5 @@
 from tkinter import *
-from PIL import Image, ImageTk
+
 
 class Box(object):
     def __init__(self):
