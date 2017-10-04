@@ -1,5 +1,5 @@
 from tkinter import *
-# from entity_class import *
+
 
 root = Tk()
 
@@ -18,23 +18,51 @@ class Entity(object):
     def __init__(self, X = 35, Y = 35):
         self.X = X
         self.Y = Y
+        self.costume = hero_down
+        # self.image_entity = hero_down
 
     def move(self, dx, dy):
-        canvas.move(self.hero_imag, dx, dy)    
+        canvas.move(self.image_entity, dx, dy)    
         
     
-    def draw_hero(self, entity_image = hero_down):
-           self.hero_imag = canvas.create_image(self.X, self.Y, image = entity_image)
-    # def draw(self, entity_image):
-    #     self.e_image = canvas.entity_image(self.x, self.y, image = entity_image)
+    def draw_hero(self):
+           self.image_entity = canvas.create_image(self.X, self.Y, image = self.costume)
 
+
+    def update_costume(self, costume):
+        self.costume = costume
+        canvas.itemconfigure(self.image_entity, image=self.costume)    
+
+
+    def on_key_press(self, e):
+        coords = canvas.coords(self.image_entity)
+        # print(coords)
+        if ( e.keysym == 'Up' ):
+            if coords[1] > 35:
+                self.move(0,-70)
+                self.update_costume(hero_up)
+                self.hero.update_costume(hero_up)
+        elif( e.keysym == 'Down' ):
+            if coords[1] < 666:
+                self.move(0,70)
+                self.update_costume(hero_down)
+        elif( e.keysym == 'Right' ):
+            if coords[0] < 665:
+                self.move(70,0)
+                self.costume = hero_right
+                self.update_costume(hero_right)
+        elif( e.keysym == 'Left' ):
+            if coords[0] > 35:
+                self.move(-70,0)
+                self.costume = hero_left
+                self.update_costume(hero_left)
 
 class Hero(Entity):
     def __init__(self, X = 35, Y = 35):
         super().__init__(X, Y)
 
 
-
+###   OPEN THE MAP FROM FILE   ###
 def import_walls_to_list(file_name):
     try:
         with open(file_name, "r") as f:
@@ -43,8 +71,25 @@ def import_walls_to_list(file_name):
     except Exception:
         print("File read error")
 
+###   OPEN THE MAP FROM LINES IN LINES   ###
+def import_walls_to_list():
+    line_list = [
+    [0, 0, 0, 1, 0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 1, 0, 1, 1, 0],
+    [0, 1, 1, 1, 0, 1, 0, 1, 1, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+    [1, 1, 1, 1, 0, 1, 1, 1, 1, 0],
+    [0, 1, 0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 1, 1, 0, 1, 0],
+    [0, 1, 1, 1, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 1, 0, 1, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 0, 0, 0]] 
+    return line_list
+
+
 def draw_tiles():
-    wall_list = import_walls_to_list(map_name)
+    wall_list = import_walls_to_list() #ADD map_name to input
     distance = 70
     for i, line in enumerate(wall_list):
        for j, value in enumerate(line):
@@ -53,21 +98,20 @@ def draw_tiles():
             elif str(value) == "1":
                image_floor = canvas.create_image(35+j*distance, 35+i*distance, image = image_02)
 
-def on_key_press(e):
-    if ( e.keysym == 'Up' ):
-        hero.move(0,-70)
-    elif( e.keysym == 'Down' ):
-        hero.move(0,70)
-    elif( e.keysym == 'Right'):
-        hero.move(70,0)
-    elif ( e.keysym == 'Left'):
-        hero.move(-70,0)
+def chack_if_the_hero_goes_to_wall():
+    for i, line in enumerate(wall_list):
+           for j, value in enumerate(line):
+               if i == 1:
+                print(WALL)
 
+
+    
 
 draw_tiles()
 hero = Entity()
 hero.draw_hero()
-root.bind("<KeyPress>", on_key_press)
+
+root.bind("<KeyPress>", hero.on_key_press)
 
 root.mainloop()
 
